@@ -17,7 +17,7 @@ DELAY_TIME.freeze
 def load_objects
   # cargar modelo y preparar arreglos necesarios
   puts "Loading model"
-  @model = Model.new('Remote', 'Remote.mtl')
+  @remote = Model.new('Remote', 'Remote.mtl')
   puts "model loaded"
 end
 
@@ -54,7 +54,7 @@ def draw
   glRotatef(190, 0.0, 1.0, 0.0)
   glScalef(10.0, 10.0, 10.0)
   
-  @model.draw
+  @remote.draw
   
   #finalizacion
   glPopMatrix
