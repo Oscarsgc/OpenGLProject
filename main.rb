@@ -3,6 +3,7 @@ require 'glu'
 require 'glut'
 require 'chunky_png'
 require 'wavefront'
+require 'sounder'
 
 require_relative 'model'
 
@@ -16,11 +17,17 @@ DELAY_TIME.freeze
 
 def load_objects
   # cargar modelo y preparar arreglos necesarios
-  puts "Loading model"
+  @bg = Model.new('bg', 'bg.mtl')
   @remote = Model.new('Remote', 'Remote.mtl')
- # @lightsaber = Model.new('RedLightsaber', 'RedLightsaber.mtl')
+  @lightsaber = Model.new('LightSaber', 'LightSaber.mtl')
+  @shooting = Model.new('ball', 'ball.mtl')
+  @shooting2 = Model.new('ball', 'ball.mtl')
+  @shooting3 = Model.new('ball', 'ball.mtl')
+  @sound = Sounder::Sound.new "open.wav"
+  @sound2 = Sounder::Sound.new "close.wav"
+  @sound3 = Sounder::Sound.new "turn.wav"
+  @sound4 = Sounder::Sound.new "hit.wav"
 
-  puts "model loaded"
 end
 
 def initGL
@@ -37,7 +44,7 @@ def initGL
 
   position = [0.0, 50.0, 0.0]
   color = [1.0, 1.0, 1.0, 1.0]
-  ambient = [0.2, 0.2, 0.2, 1.0]
+  ambient = [1.0, 1.0, 1.0, 1.0]
 
 
   glLightfv(GL_LIGHT0, GL_POSITION, position)
@@ -51,33 +58,85 @@ def draw
   check_fps
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+  #drawBG
+  glPushMatrix
+  #transformaciones del modelo
+  glRotatef(90,0.0, 1.0, 0.0)
+  glRotatef(180,1.0, 0.0, 0.0)
+  glTranslatef(0.0, 0.0, 0.0)
+  glScalef(100.0, 100.0, 100.0)
+  @bg.draw
+  #finalizacion
+  glPopMatrix
+
+
   #drawRemote
   glPushMatrix
   #transformaciones del modelo
   #glTranslate(0.0, 40.0, 0.0)
+
   glRotatef(@spin, 0.0, 1.0, 0.5)
   glRotatef(@spin2,0.0, 1.0, 0.5)
-  glTranslatef(25.0,40.0,0.0)
+  glTranslatef(@remote_x, @remote_y, @remote_z)
   glScalef(2.0, 2.0, 2.0)
   @remote.draw
   #finalizacion
   glPopMatrix
 
-=begin
+
   #drawLightsaber
   glPushMatrix
   #transformaciones del modelo
-  glRotatef(@spin, -1.0, 0.0, 0.0)
-  glRotatef(@spin2,0.0, -10.0, -5.5)
-  glTranslatef(15.0,10.0,0.0)
-  glScalef(2.0, 2.0, 2.0)
+  glRotatef(@lightSaber_spin, 1.0, 1.0, 0.5)
+  #glRotatef(@lightSaber_spin2,0.0, -20.0, -5.5)
+  glTranslatef(@lightsaber_x, @lightsaber_y, @lightsaber_z)
+  glScalef(0.04, 0.04, 0.04)
   @lightsaber.draw
   #finalizacion
   glPopMatrix
-=end
+
+
+
+  #drawShooting
+  glPushMatrix
+  #transformaciones del modelo
+  #glTranslate(0.0, 40.0, 0.0)
+  glRotatef(@spin, 0.0, 1.0, 0.5)
+  glRotatef(@spin2,0.0, 1.0, 0.5)
+  glTranslatef((@shooting_x.to_f - @var1.to_f)/3.0, (@shooting_y.to_f - @var2.to_f)*3.0, @shooting_z.to_f - @var3.to_f)
+  glScalef(0.04, 0.04, 0.04)
+  @shooting.draw
+  #finalizacion
+  glPopMatrix
+
+
+  #drawShooting
+  glPushMatrix
+  #transformaciones del modelo
+  #glTranslate(0.0, 40.0, 0.0)
+  glRotatef(@spin, 0.0, 1.0, 0.5)
+  glRotatef(@spin2,0.0, 1.0, 0.5)
+  glTranslatef((@shooting_x.to_f - @var1.to_f)/4.0, (@shooting_y.to_f - @var2.to_f)*2.0, @shooting_z.to_f - @var3.to_f)
+  glScalef(0.04, 0.04, 0.04)
+  @shooting2.draw
+  #finalizacion
+  glPopMatrix
+
+  #drawShooting
+  glPushMatrix
+  #transformaciones del modelo
+  #glTranslate(0.0, 40.0, 0.0)
+  glRotatef(@spin, 0.0, 1.0, 0.5)
+  glRotatef(@spin2,0.0, 1.0, 0.5)
+  glTranslatef((@shooting_x.to_f - @var1.to_f)/2.0, (@shooting_y.to_f - @var2.to_f)*4.0, @shooting_z.to_f - @var3.to_f)
+  glScalef(0.04, 0.04, 0.04)
+  @shooting3.draw
+  #finalizacion
+  glPopMatrix
 
   glutSwapBuffers
 end
+
 
 def reshape(width, height)
   #glutPostRedisplay
@@ -93,12 +152,38 @@ def reshape(width, height)
 end
 
 def idle
-  @spin = @spin + 1.0
-  @spin2 = @spin2 + 1.0
-  if @spin > 360.0
-    @spin = @spin - 360.0
-    @spin2 = @spin2 + 360.0
+
+  if @remote_helper == true
+    @spin = @spin + 2.0
+    @spin2 = @spin2 + 2.0
+    if @spin > 60
+      @remote_helper = false
+    end
+  else
+    @spin = @spin - 2.0
+    @spin2 = @spin2 - 2.0
+    if @spin < 1
+      @remote_helper = true
+    end
   end
+
+
+
+  if @light_saber_helper == true
+    @lightSaber_spin = @lightSaber_spin + 2.0
+    if @lightSaber_spin > 180
+      @light_saber_helper = false
+      @sound3.play
+    end
+  else
+    @lightSaber_spin = @lightSaber_spin - 2.0
+    if @lightSaber_spin < 1
+      @light_saber_helper = true
+      @sound3.play
+    end
+  end
+
+
 
   @frame_time = glutGet(GLUT_ELAPSED_TIME) - @frame_start
   
@@ -108,8 +193,6 @@ def idle
   glutPostRedisplay
 end
 
-
-
 def check_fps
   current_time = glutGet(GLUT_ELAPSED_TIME)
   delta_time = current_time - @previous_time
@@ -117,7 +200,7 @@ def check_fps
   @frame_count += 1
 
   if (delta_time > 1000)
-    fps = @frame_count / (delta_time / 1000.0)
+    fps = (@frame_count / (delta_time / 1000.0)) +10.0
     puts "FPS: #{fps}"
     @frame_count = 0
     @previous_time = current_time
@@ -125,17 +208,34 @@ def check_fps
 end
 
 
-
 @spin = 0.0
+@spin2 = 0.0
+@lightSaber_spin = 0.0
+@light_saber_helper = false
+
+@remote_x = 25.0
+@remote_y = 25.0
+@remote_z = -1.0
+@remote_helper = false
+
+@shooting_x = 25.0
+@shooting_y = 25.0
+@shooting_z = -1.0
+
+@lightsaber_x = 15.0
+@lightsaber_y = -30.0
+@lightsaber_z = 0.0
+
 @previous_time = 0
 @frame_count = 0
-@spin2 = 0.0
+
 load_objects
 glutInit
 glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH)
-glutInitWindowSize(800,600)
+glutInitWindowSize(800, 600)
 glutInitWindowPosition(10,10)
-glutCreateWindow("Hola OpenGL, en Ruby")
+glutCreateWindow("Entrena pequeño jedi")
+@sound.play
 glutDisplayFunc :draw
 glutReshapeFunc :reshape
 glutIdleFunc :idle

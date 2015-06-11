@@ -31,6 +31,7 @@
     <orderEntry type="library" scope="PROVIDED" name="glu (v8.2.1, RVM: ruby-2.2.1) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="glut (v8.2.1, RVM: ruby-2.2.1) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="opengl (v0.9.2, RVM: ruby-2.2.1) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="sounder (v1.2.0, RVM: ruby-2.2.1) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="wavefront (v0.1.2, RVM: ruby-2.2.1) [gem]" level="application" />
   </component>
 </module>
