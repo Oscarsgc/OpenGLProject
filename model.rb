@@ -41,7 +41,7 @@ class Model
 			unless material.nil?
 				glColor3f(material.diffuse.red, material.diffuse.green, material.diffuse.blue)
 				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [material.specular.red, material.specular.green, material.specular.blue])
-				glMaterialf(GL_FRONT, GL_SHININESS, material.shininess)				
+				glMaterialf(GL_FRONT, GL_SHININESS, material.shininess)
 				unless material.texture.nil?
 					glEnable(GL_TEXTURE_2D)
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
