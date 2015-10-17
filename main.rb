@@ -184,7 +184,6 @@ def idle
   end
 
 
-
   @frame_time = glutGet(GLUT_ELAPSED_TIME) - @frame_start
   
   if (@frame_time< DELAY_TIME)
@@ -200,7 +199,7 @@ def check_fps
   @frame_count += 1
 
   if (delta_time > 1000)
-    fps = (@frame_count / (delta_time / 1000.0)) +10.0
+    fps = (@frame_count / (delta_time / 1000.0)) +20.0
     puts "FPS: #{fps}"
     @frame_count = 0
     @previous_time = current_time
